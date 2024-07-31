@@ -1,0 +1,28 @@
+# Base image
+FROM node:20.10.0
+
+# Create app directory
+WORKDIR /app
+
+# Install app dependencies by copying
+# package.json and package-lock.json
+COPY package*.json ./
+
+# Copy the entrypoint script into the container
+COPY docker-entrypoint.sh /usr/local/bin/
+# Set the entrypoint script to be executed
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+# Install dependencies
+ARG NPM_TOKEN
+RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+RUN npm install
+RUN rm .npmrc
+# Bundle app source
+COPY . .
+
+# Expose the port the development server runs on
+EXPOSE 8081
+
+# Start the application using React's development server
+CMD ["npm", "run", "dev"]
